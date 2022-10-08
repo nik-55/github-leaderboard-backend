@@ -2,7 +2,9 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const superagent = require("superagent");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
+app.use(cookieParser());
 
 const port = process.env.PORT || 8000;
 const client_id = process.env.CLIENT_ID;
@@ -32,8 +34,9 @@ app.get("/users/tokens", async (req, res) => {
       if (err) res.send("Authenciation Failed");
       else {
         const access_token = result.body.access_token;
-        console.log(access_token);
-        res.redirect("http://localhost:3000/");
+        res
+          .cookie("access_token", access_token)
+          .redirect(`http://localhost:3000`);
       }
     });
 });
