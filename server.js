@@ -5,6 +5,12 @@ const superagent = require("superagent");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 app.use(cookieParser());
+const bodyParser = require("body-parser");
+const { User } = require("./database");
+
+//Here we are configuring express to use body-parser as middle-ware.
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 const port = process.env.PORT || 8000;
 const client_id = process.env.CLIENT_ID;
@@ -39,4 +45,14 @@ app.get("/users/tokens", async (req, res) => {
           .redirect(`http://localhost:3000`);
       }
     });
+});
+
+app.post("/trackuser", async (req, res) => {
+  const { username, tracked_users } = req.body;
+  const user = new User({
+    username,
+    tracked_users,
+  });
+  await user.save();
+  res.send("User successfully saved");
 });
