@@ -9,6 +9,7 @@ mongoose
     console.log("Connected To database");
   })
   .catch((err) => {
+    console.log(err);
     console.log("Error in connecting to db");
   });
 
