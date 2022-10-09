@@ -10,6 +10,11 @@ const app = express();
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 const port = process.env.PORT || 8000;
 const client_id = process.env.CLIENT_ID;
@@ -20,12 +25,6 @@ app.listen(port, () => {
   console.log(`server started at ${port}`);
 });
 
-app.use(
-  cors({
-    origin: ["*"],
-  })
-);
-
 app.get("/users/tokens", async (req, res) => {
   let response = await superagent
     .post("https://github.com/login/oauth/access_token")
@@ -35,7 +34,7 @@ app.get("/users/tokens", async (req, res) => {
       client_secret: client_secret,
     })
     .set("Accept", "application/json")
-    .on("error", console.log);
+    .on("error", (err) => console.log(err));
 
   const access_token = response.body.access_token;
 
@@ -44,14 +43,14 @@ app.get("/users/tokens", async (req, res) => {
     .set("Accept", "application/vnd.github+json")
     .set("User-Agent", "GitHub-Leaderboard")
     .set("Authorization", `Bearer ${access_token}`)
-    .on("error", console.log);
+    .on("error", (err) => console.log(err));
 
   const username = response.body.login;
   let tracked_users = [];
 
   const queryResult = await User.find({ username }).exec();
 
-  if (queryResult.length == 0) {
+  if (queryResult.length === 0) {
     new User({
       username,
       tracked_users,
@@ -69,10 +68,6 @@ app.get("/users/tokens", async (req, res) => {
 
 app.post("/trackuser", async (req, res) => {
   const { username, tracked_users } = req.body;
-  const user = new User({
-    username,
-    tracked_users,
-  });
-  await user.save();
-  res.send("User successfully saved");
+  await User.updateOne({ username }, { $set: { tracked_users } });
+  res.cookie("tracked_users", tracked_users).send("success");
 });
