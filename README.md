@@ -12,8 +12,8 @@
 ### 1. Clone this repo
 
 ```bash
-$ git clone https://github.com/BURG3R5/github-leaderboard.git
-$ cd github-leaderboard
+$ git clone https://github.com/nik-55/github-leaderboard-backend.git
+$ cd github-leaderboard-backend
 ```
 
 ### 2. Install dependencies
